@@ -87,6 +87,7 @@ pub struct RotationCancelled {
 }
 
 #[contractevent]
+#[contractevent]
 pub struct StallTimeoutUpdated {
     pub stall_timeout_secs: u64,
 }
@@ -104,6 +105,14 @@ pub struct StalledDisputeReclaimed {
     /// Who called `reclaim_stalled_dispute`. Always a verified address —
     /// the call requires the caller's auth unconditionally.
     pub caller: Address,
+}
+
+#[contractevent]
+pub struct RotationVoted {
+    pub resolver: Address,
+    pub approve: bool,
+    pub yes_count: u32,
+    pub no_count: u32,
 }
 
 /// An in-flight single-slot committee rotation proposed by a current resolver.
@@ -593,9 +602,9 @@ impl Tholos {
         }
 
         if approve {
-            proposal.yes.push_back(resolver);
+            proposal.yes.push_back(resolver.clone());
         } else {
-            proposal.no.push_back(resolver);
+            proposal.no.push_back(resolver.clone());
         }
 
         let n = committee.len();
@@ -648,6 +657,13 @@ impl Tholos {
         env.storage()
             .instance()
             .set(&DataKey::RotationProposal, &proposal);
+        RotationVoted {
+            resolver,
+            approve,
+            yes_count: proposal.yes.len(),
+            no_count: proposal.no.len(),
+        }
+        .publish(&env);
         Ok(None)
     }
 
