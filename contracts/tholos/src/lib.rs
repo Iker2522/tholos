@@ -87,7 +87,6 @@ pub struct RotationCancelled {
 }
 
 #[contractevent]
-#[contractevent]
 pub struct StallTimeoutUpdated {
     pub stall_timeout_secs: u64,
 }
