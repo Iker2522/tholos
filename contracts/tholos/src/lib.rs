@@ -106,6 +106,14 @@ pub struct StalledDisputeReclaimed {
     pub caller: Address,
 }
 
+#[contractevent]
+pub struct RotationVoted {
+    pub resolver: Address,
+    pub approve: bool,
+    pub yes_count: u32,
+    pub no_count: u32,
+}
+
 /// An in-flight single-slot committee rotation proposed by a current resolver.
 /// Decided by a strict majority of the live committee via `vote_rotation`. Only
 /// one may be open at a time. See `docs/src/ROTATION_DESIGN.md`.
@@ -593,9 +601,9 @@ impl Tholos {
         }
 
         if approve {
-            proposal.yes.push_back(resolver);
+            proposal.yes.push_back(resolver.clone());
         } else {
-            proposal.no.push_back(resolver);
+            proposal.no.push_back(resolver.clone());
         }
 
         let n = committee.len();
@@ -648,6 +656,13 @@ impl Tholos {
         env.storage()
             .instance()
             .set(&DataKey::RotationProposal, &proposal);
+        RotationVoted {
+            resolver,
+            approve,
+            yes_count: proposal.yes.len(),
+            no_count: proposal.no.len(),
+        }
+        .publish(&env);
         Ok(None)
     }
 
