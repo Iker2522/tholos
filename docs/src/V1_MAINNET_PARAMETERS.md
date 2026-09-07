@@ -79,8 +79,8 @@ climbing steadily, not staying flat:
 | 101–125 | 782,106 |
 | 126–150 | 856,139 |
 
-The very first call in a fresh instance costs 429,829 instructions; the
-150th costs 890,671 — almost exactly double, and the growth is close to
+The very first call in a fresh instance costs 429,829 instructions. The
+150th costs 890,671, almost exactly double, and the growth is close to
 linear (~3,100 extra instructions per prior assertion). This repeats a
 pattern already flagged for `bond_amount` sizing purposes in
 [BOND_SIZING.md](BOND_SIZING.md#monitoring-and-adjustment): usage-dependent
@@ -88,7 +88,7 @@ cost isn't unique to this operation, but this document is the first place it's
 been directly measured.
 
 Each `assert_outcome` call writes a new, separate persistent storage entry
-(`DataKey::Assertion(id)`, one per id — not a shared growing collection), so
+(`DataKey::Assertion(id)`, one per id, not a shared growing collection), so
 this isn't a case of one contract-level data structure growing unbounded. The
 most likely explanation is that Soroban's ledger read/write cost accounting
 is sensitive to the *total* footprint the transaction's ledger-entry
@@ -109,7 +109,7 @@ nothing in the existing documentation mentions it at all.
 
 `scripts/testnet-load.sh`'s `CHALLENGE_WINDOW_SECS=120` exists purely so an
 automated CI-style run finishes in about two minutes rather than hours. It is
-not, and was never intended to be, a production candidate — the script picks
+not, and was never intended to be, a production candidate. The script picks
 it for the same reason a unit test doesn't sleep for a real day. Running the
 script, even with full testnet access, would not produce a "real-world
 dispute-response time" figure, because the script has no human in the loop
@@ -131,7 +131,7 @@ t_verify   Time to check the assertion against the real-world fact it
 t_decide   Time to decide disputing is worthwhile, weighing the bond cost
            against the expected value of correcting the assertion.
 t_submit   Time to actually construct, sign, and submit the dispute
-           transaction (seconds, from Part 1 -- not the bottleneck).
+           transaction (seconds, from Part 1, not the bottleneck).
 ```
 
 `t_submit` is the only one of these Part 1's measurements bear on directly,
@@ -185,7 +185,7 @@ anything the contract or network expose. What can be stated concretely:
 (6 hours) for the canonical testnet instance. That sits within the automated-
 monitoring range above, but the canonical deployment's resolvers are
 `resolver1`/`resolver2`/`resolver3` test identities with, per DEPLOYMENT.md's
-own words, "no real-world accountability behind them yet" -- so its window
+own words, "no real-world accountability behind them yet." Its window
 choice reflects testnet convenience, not a production recommendation either.
 Don't copy it directly into a mainnet `initialize` call without reasoning
 through the monitoring tier above for your specific deployment.
@@ -213,7 +213,7 @@ per-dispute-snapshotted committee. Composition can only change afterward via
 stake," move to 5 once bond sizes or assertion values reach a point where a
 single compromised or colluding pair of resolvers becomes an attractive
 target, and treat anything above 7 as a governance/legitimacy choice rather
-than a security one -- `resolve`'s gas/compute cost (Part 1) is not a
+than a security one. `resolve`'s gas/compute cost (Part 1) is not a
 constraint on committee size in either direction; the practical ceiling is
 how many people can realistically be reached and vote within
 `challenge_window_secs` once a dispute opens.
@@ -234,7 +234,7 @@ how many people can realistically be reached and vote within
   addresses; a single incident (that provider's outage, that group's
   compromise) can take out a majority at once.
 - **Self-rotation lets the committee evolve without an admin override,
-  but only by strict majority and one seat at a time** -- it cannot recover
+  but only by strict majority and one seat at a time.** It cannot recover
   a committee that's lost the ability to reach majority at all (e.g. more
   than `(n-1)/2` resolvers simultaneously unresponsive). `update_resolvers`
   is the explicit break-glass path for that scenario; a real deployment
