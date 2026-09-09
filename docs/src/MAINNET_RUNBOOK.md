@@ -117,9 +117,10 @@ first hours and days after.
 2. **Finalize and sign off on parameters** (`bond_amount`,
    `challenge_window_secs`, `finalize_reward_bps`, resolver committee) per
    [V1_MAINNET_PARAMETERS.md](V1_MAINNET_PARAMETERS.md) and
-   [BOND_SIZING.md](BOND_SIZING.md). These (except the resolver committee)
-   cannot be changed after `initialize` except `bond_amount` and
-   `finalize_reward_bps`'s own admin setters going forward — get them right
+   [BOND_SIZING.md](BOND_SIZING.md). Only `bond_amount` has an admin setter
+   (`set_bond_amount`) to correct later; `challenge_window_secs` and
+   `finalize_reward_bps` are written once, inside `initialize`, and
+   permanently fixed at deployment with no setter at all — get them right
    before deploying, not after.
 3. **Confirm every resolver has completed onboarding**
    per [RESOLVER_GOVERNANCE.md](RESOLVER_GOVERNANCE.md#onboarding-a-new-resolver):
@@ -147,13 +148,19 @@ first hours and days after.
    [DEPLOYMENT.md](DEPLOYMENT.md#deploying), substituting the
    mainnet-specific values from steps 2–4 for the testnet example values
    shown there.
-8. **Verify on-chain state matches what was signed off on** before
-   announcing the contract id publicly or pointing any real value at it:
-   read back `bond_amount`, `challenge_window_secs`, `finalize_reward_bps`,
-   the resolver set, and the admin address via the read-only calls in
-   [DEPLOYMENT.md](DEPLOYMENT.md#checking-state), and diff them against
-   step 2–4's signed-off values. A mismatch here (a typo in a CLI argument,
-   the wrong token address) is far cheaper to catch before anyone has
+8. **Verify the submitted `initialize` transaction's arguments match what
+   was signed off on** before announcing the contract id publicly or
+   pointing any real value at it. This contract has no getters for
+   `bond_amount`, `challenge_window_secs`, `finalize_reward_bps`, the
+   resolver set, or the admin address (`get_assertion_state(id)` is the
+   only public read entrypoint, and it returns per-assertion state, not
+   configuration — see [CONTRACT.md](CONTRACT.md)), and `initialize` emits
+   no event either, so there is no independent on-chain query to check
+   these against after the fact. The only real verification available is
+   the `initialize` transaction itself: read back its submitted arguments
+   from a block explorer (or from your own CLI output, before it's even
+   confirmed) and diff them against step 2–4's signed-off values. A
+   mismatch here (a typo in a CLI argument, the wrong token address) is far cheaper to catch before anyone has
    posted an assertion than after.
 9. **Run one low-stakes assertion through the full happy path** (assert,
    wait out the challenge window, finalize) before directing real users or
