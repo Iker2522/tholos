@@ -117,11 +117,14 @@ first hours and days after.
 2. **Finalize and sign off on parameters** (`bond_amount`,
    `challenge_window_secs`, `finalize_reward_bps`, resolver committee) per
    [V1_MAINNET_PARAMETERS.md](V1_MAINNET_PARAMETERS.md) and
-   [BOND_SIZING.md](BOND_SIZING.md). Only `bond_amount` has an admin setter
-   (`set_bond_amount`) to correct later; `challenge_window_secs` and
+   [BOND_SIZING.md](BOND_SIZING.md). `challenge_window_secs` and
    `finalize_reward_bps` are written once, inside `initialize`, and
    permanently fixed at deployment with no setter at all — get them right
-   before deploying, not after.
+   before deploying, not after. `bond_amount` and the resolver committee
+   are not permanently fixed the same way: `bond_amount` has its own admin
+   setter (`set_bond_amount`), and the committee can change post-deployment
+   via the admin's `update_resolvers` (see Part 1) or resolver
+   self-rotation — both are correctable later, unlike the other two.
 3. **Confirm every resolver has completed onboarding**
    per [RESOLVER_GOVERNANCE.md](RESOLVER_GOVERNANCE.md#onboarding-a-new-resolver):
    custody model in place, response-time commitment made, conflict-of-interest
